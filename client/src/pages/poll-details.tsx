@@ -93,18 +93,21 @@ export default function PollDetails() {
             <section className="cyber-card p-8 border-primary/40 bg-primary/5">
               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-primary" />
-                POLL_RESULTS
+                FINAL_VOTING_RESULTS
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-6 bg-black/40 border border-primary/20">
-                  <p className="text-xs text-primary/60 mb-1">YES_VOTES</p>
-                  <p className="text-3xl font-black text-white">{poll.option_1_votes || 0}</p>
+                  <p className="text-xs text-primary/60 mb-1 font-mono uppercase tracking-widest">Total YES Votes</p>
+                  <p className="text-3xl font-black text-white">{poll.yes_votes || 0}</p>
                 </div>
                 <div className="p-6 bg-black/40 border border-primary/20">
-                  <p className="text-xs text-destructive/60 mb-1">NO_VOTES</p>
-                  <p className="text-3xl font-black text-white">{poll.option_2_votes || 0}</p>
+                  <p className="text-xs text-destructive/60 mb-1 font-mono uppercase tracking-widest">Total NO Votes</p>
+                  <p className="text-3xl font-black text-white">{poll.no_votes || 0}</p>
                 </div>
               </div>
+              <p className="mt-6 text-[10px] text-muted-foreground font-mono uppercase text-center opacity-60">
+                Privacy Guaranteed: Individual votes are cryptographically obscured.
+              </p>
             </section>
           )}
         </div>
@@ -210,27 +213,29 @@ function CommitForm({ pollId }: { pollId: number }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <button 
           onClick={() => setChoice("1")}
-          className={`p-8 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group ${choice === "1" ? 'bg-primary border-primary text-black shadow-[0_0_30px_rgba(var(--primary),0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-primary/40 hover:border-primary/60 hover:text-primary hover:bg-primary/5'}`}
+          className={`p-10 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group rounded-sm ${choice === "1" ? 'bg-primary border-primary text-black shadow-[0_0_30px_rgba(var(--primary),0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-primary/40 hover:border-primary/60 hover:text-primary hover:bg-primary/5'}`}
         >
-          <CheckCircle2 className={`w-12 h-12 ${choice === "1" ? 'text-black' : 'text-primary/20 group-hover:text-primary/40'}`} />
-          <div className="text-center">
-            <span className="text-4xl block">YES</span>
-            <span className="text-[10px] font-mono opacity-60 uppercase mt-1">Accept Proposal</span>
-          </div>
+          <span className="text-5xl block">YES</span>
+          <span className="text-xs font-mono opacity-80 uppercase tracking-tighter">Private Vote</span>
         </button>
         <button 
           onClick={() => setChoice("2")}
-          className={`p-8 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group ${choice === "2" ? 'bg-destructive border-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-destructive/40 hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5'}`}
+          className={`p-10 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group rounded-sm ${choice === "2" ? 'bg-destructive border-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-destructive/40 hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5'}`}
         >
-          <EyeOff className={`w-12 h-12 ${choice === "2" ? 'text-white' : 'text-destructive/20 group-hover:text-destructive/40'}`} />
-          <div className="text-center">
-            <span className="text-4xl block">NO</span>
-            <span className="text-[10px] font-mono opacity-60 uppercase mt-1">Reject Proposal</span>
-          </div>
+          <span className="text-5xl block">NO</span>
+          <span className="text-xs font-mono opacity-80 uppercase tracking-tighter">Private Vote</span>
         </button>
+      </div>
+
+      <div className="p-4 bg-primary/5 border border-primary/10 rounded-sm text-center">
+        <p className="text-sm font-bold text-primary mb-1 uppercase tracking-widest">Privacy Protocol Active</p>
+        <p className="text-[10px] text-muted-foreground font-mono leading-tight max-w-md mx-auto">
+          Your individual vote choice is hidden cryptographically. 
+          Individual votes are not visible. Only the final result will be revealed.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -238,44 +243,33 @@ function CommitForm({ pollId }: { pollId: number }) {
           <button 
             disabled={!choice || isCalculating}
             onClick={handleGenerate}
-            className="w-full h-12 border border-primary text-primary font-bold hover:bg-primary/10 disabled:opacity-30 flex items-center justify-center gap-2"
+            className="w-full h-14 bg-primary text-black font-black hover:bg-primary/90 disabled:opacity-30 flex items-center justify-center gap-2 skew-x-[-2deg]"
           >
             {isCalculating && <Loader2 className="w-4 h-4 animate-spin" />}
-            GENERATE_COMMITMENT_HASH
+            GENERATE_PRIVATE_COMMITMENT
           </button>
         ) : (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
-            <div className="p-4 bg-black/60 border border-primary/30 space-y-3 font-mono text-xs">
-              <div className="flex justify-between items-center">
-                <span className="text-primary/60">SALT (SECRET):</span>
-                <span className="text-white bg-primary/20 px-1">{salt}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-primary/60">COMMITMENT:</span>
-                <span className="text-white truncate max-w-[150px]">{commitment}</span>
-              </div>
-            </div>
-            
             <button 
               disabled={isSubmitting}
               onClick={handleSubmit}
-              className="w-full cyber-button h-16 flex items-center justify-center gap-3 text-lg"
+              className="w-full cyber-button h-20 flex flex-col items-center justify-center gap-1 text-xl"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-6 h-6 animate-spin" />
-                  ENCRYPTING_AND_SENDING...
+                  <span className="text-sm">TRANSMITTING_ENCRYPTED_DATA...</span>
                 </>
               ) : (
                 <>
-                  <ShieldCheck className="w-6 h-6" />
-                  CONFIRM_PRIVATE_VOTE
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="w-6 h-6" />
+                    <span>CAST_PRIVATE_VOTE</span>
+                  </div>
+                  <span className="text-[10px] font-mono opacity-60 uppercase tracking-[0.2em]">Secure Starknet Broadcast</span>
                 </>
               )}
             </button>
-            <p className="text-[10px] text-center text-muted-foreground uppercase">
-              Note: Do not clear browser cache after committing.
-            </p>
           </div>
         )}
       </div>
@@ -308,13 +302,13 @@ function RevealForm({ pollId }: { pollId: number }) {
       // Sync results after reveal
       try {
         const pollInfo = await contract.get_poll_info(poll.contractPollId);
-        // pollInfo format: [creator, voting_end, reveal_end, option_1_votes, option_2_votes]
+        // pollInfo format: [creator, voting_end, reveal_end, yes_votes, no_votes]
         await fetch(`/api/polls/${pollId}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            option1: Number(pollInfo[3] || pollInfo.option_1_votes),
-            option2: Number(pollInfo[4] || pollInfo.option_2_votes),
+            yesVotes: Number(pollInfo[3] || pollInfo.yes_votes),
+            noVotes: Number(pollInfo[4] || pollInfo.no_votes),
           })
         });
       } catch (syncErr) {

@@ -12,15 +12,17 @@ export const polls = pgTable("polls", {
   votingEndsAt: timestamp("voting_ends_at").notNull(),
   revealEndsAt: timestamp("reveal_ends_at").notNull(),
   status: text("status").default("pending"), // pending, active, completed
-  option_1_votes: integer("option_1_votes").default(0),
-  option_2_votes: integer("option_2_votes").default(0),
+  yes_votes: integer("yes_votes").default(0),
+  no_votes: integer("no_votes").default(0),
 });
 
 export const insertPollSchema = createInsertSchema(polls).omit({ 
   id: true, 
   contractPollId: true, 
   transactionHash: true,
-  status: true 
+  status: true,
+  yes_votes: true,
+  no_votes: true
 });
 
 export type Poll = typeof polls.$inferSelect;

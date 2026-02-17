@@ -96,17 +96,13 @@ function PollCard({ poll }: { poll: any }) {
         </p>
 
         <div className="space-y-2 text-xs font-mono text-muted-foreground border-t border-primary/10 pt-4">
+          <div className="flex justify-between items-center text-primary font-bold">
+            <span>VOTING_MODEL:</span>
+            <span>YES / NO BINARY</span>
+          </div>
           <div className="flex justify-between">
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> VOTING END:</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> ENDS:</span>
             <span className="text-foreground">{format(new Date(poll.votingEndsAt), 'MM/dd HH:mm')}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="flex items-center gap-1"><Vote className="w-3 h-3" /> REVEAL END:</span>
-            <span className="text-foreground">{format(new Date(poll.revealEndsAt), 'MM/dd HH:mm')}</span>
-          </div>
-          <div className="flex justify-between items-center pt-2">
-            <span>CREATOR:</span>
-            <span className="text-primary truncate max-w-[100px]">{poll.creatorAddress.substring(0, 6)}...{poll.creatorAddress.substring(60)}</span>
           </div>
         </div>
         
