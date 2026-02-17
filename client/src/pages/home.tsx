@@ -75,14 +75,17 @@ function PollCard({ poll }: { poll: any }) {
     <Link href={`/poll/${poll.id}`}>
       <div className="cyber-card p-6 h-full flex flex-col cursor-pointer group hover:-translate-y-1 transition-transform duration-300">
         <div className="flex justify-between items-start mb-4">
-          <div className={`text-xs font-bold border px-2 py-0.5 rounded-full ${
+          <div className={`text-[10px] font-mono font-bold border px-2 py-0.5 uppercase tracking-tighter ${
             isVotingPhase ? 'border-primary text-primary bg-primary/10' :
             isRevealPhase ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10' :
             'border-destructive text-destructive bg-destructive/10'
           }`}>
             {statusText}
           </div>
-          <Lock className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/5 border border-primary/20 rounded-sm">
+            <Lock className="w-3 h-3 text-primary/70" />
+            <span className="text-[9px] font-black text-primary/70 uppercase tracking-widest">PRIVATE</span>
+          </div>
         </div>
 
         <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">

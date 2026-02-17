@@ -38,16 +38,17 @@ export default function PollDetails() {
             <p className="text-muted-foreground text-lg leading-relaxed mb-6">
               {poll.description}
             </p>
-            <div className="flex flex-wrap gap-4 text-xs font-mono">
-              <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
-                <span className="text-primary/60">CREATOR:</span>
-                <span className="text-white">{poll.creatorAddress.substring(0, 10)}...</span>
+              <div className="flex flex-wrap gap-4 text-xs font-mono">
+                <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
+                  <ShieldCheck className="w-3 h-3 text-primary" />
+                  <span className="text-primary/60">VOTING_MODE:</span>
+                  <span className="text-white font-bold">YES/NO_BINARY_PRIVATE</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
+                  <span className="text-primary/60">NETWORK:</span>
+                  <span className="text-white">STARKNET_SEPOLIA</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
-                <span className="text-primary/60">NETWORK:</span>
-                <span className="text-white">STARKNET_SEPOLIA</span>
-              </div>
-            </div>
           </header>
 
           {isVotingPhase && (
@@ -55,10 +56,13 @@ export default function PollDetails() {
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Lock className="w-24 h-24" />
               </div>
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-primary" />
                 SUBMIT_PRIVATE_VOTE
               </h2>
+              <p className="text-xs text-muted-foreground font-mono mb-6 uppercase tracking-tight">
+                Votes are encrypted. Individual choices remain hidden. Only final results are revealed.
+              </p>
               <CommitForm pollId={pollId} />
             </section>
           )}
@@ -81,11 +85,11 @@ export default function PollDetails() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-6 bg-black/40 border border-primary/20">
-                  <p className="text-xs text-primary/60 mb-1">OPTION_1_VOTES</p>
+                  <p className="text-xs text-primary/60 mb-1">YES_VOTES</p>
                   <p className="text-3xl font-black text-white">{poll.option_1_votes || 0}</p>
                 </div>
                 <div className="p-6 bg-black/40 border border-primary/20">
-                  <p className="text-xs text-primary/60 mb-1">OPTION_2_VOTES</p>
+                  <p className="text-xs text-destructive/60 mb-1">NO_VOTES</p>
                   <p className="text-3xl font-black text-white">{poll.option_2_votes || 0}</p>
                 </div>
               </div>
@@ -197,15 +201,17 @@ function CommitForm({ pollId }: { pollId: number }) {
       <div className="grid grid-cols-2 gap-4">
         <button 
           onClick={() => setChoice("1")}
-          className={`p-4 border font-bold transition-all ${choice === "1" ? 'bg-primary/20 border-primary text-primary' : 'bg-black/40 border-primary/20 text-muted-foreground hover:border-primary/40'}`}
+          className={`p-6 border-2 font-black transition-all flex flex-col items-center gap-2 ${choice === "1" ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]' : 'bg-black/40 border-primary/10 text-muted-foreground hover:border-primary/40'}`}
         >
-          OPTION_1
+          <span className="text-2xl">YES</span>
+          <span className="text-[10px] font-mono opacity-60">CONFIRM_PROPOSAL</span>
         </button>
         <button 
           onClick={() => setChoice("2")}
-          className={`p-4 border font-bold transition-all ${choice === "2" ? 'bg-primary/20 border-primary text-primary' : 'bg-black/40 border-primary/20 text-muted-foreground hover:border-primary/40'}`}
+          className={`p-6 border-2 font-black transition-all flex flex-col items-center gap-2 ${choice === "2" ? 'bg-destructive/20 border-destructive text-destructive shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-black/40 border-primary/10 text-muted-foreground hover:border-primary/40'}`}
         >
-          OPTION_2
+          <span className="text-2xl">NO</span>
+          <span className="text-[10px] font-mono opacity-60">REJECT_PROPOSAL</span>
         </button>
       </div>
 
@@ -320,8 +326,8 @@ function RevealForm({ pollId }: { pollId: number }) {
       <div className="p-4 bg-black/60 border border-yellow-500/30 font-mono text-xs">
         <p className="text-yellow-500/60 mb-2">STORED_VOTE_DATA:</p>
         <div className="flex justify-between mb-1">
-          <span>CHOICE:</span>
-          <span className="text-white">{vote.choice}</span>
+          <span>VOTE_CHOICE:</span>
+          <span className="text-white font-bold">{vote.choice === 1 ? 'YES' : 'NO'}</span>
         </div>
         <div className="flex justify-between">
           <span>SALT:</span>
@@ -334,7 +340,7 @@ function RevealForm({ pollId }: { pollId: number }) {
         onClick={handleReveal}
         className="w-full py-3 bg-yellow-500 text-black font-black hover:bg-yellow-400 disabled:opacity-50 flex items-center justify-center gap-2"
       >
-        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "REVEAL_VOTE_ON_CHAIN"}
+        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "REVEAL_SECRET_VOTE_ON_CHAIN"}
       </button>
     </div>
   );

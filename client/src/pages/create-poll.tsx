@@ -6,7 +6,7 @@ import { useCreatePoll, useUpdateContractId } from "@/hooks/use-polls";
 import { insertPollSchema } from "@shared/schema";
 import { z } from "zod";
 import { useLocation } from "wouter";
-import { CalendarIcon, Loader2, Info } from "lucide-react";
+import { CalendarIcon, Loader2, Info, ShieldCheck } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
@@ -98,6 +98,15 @@ export default function CreatePoll() {
         </header>
 
         <div className="cyber-card p-8">
+          <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-sm">
+            <div className="flex items-center gap-2 text-primary font-bold mb-1">
+              <ShieldCheck className="w-4 h-4" />
+              <span>PRIVATE_VOTING_PROTOCOL</span>
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">
+              This poll uses a commit-reveal scheme. Individual votes are cryptographically hidden until the reveal phase. Only the final tally is ever made public.
+            </p>
+          </div>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             
             <div className="space-y-2">
