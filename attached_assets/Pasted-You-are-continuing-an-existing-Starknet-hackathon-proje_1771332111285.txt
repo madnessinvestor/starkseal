@@ -1,0 +1,68 @@
+You are continuing an existing Starknet hackathon project.
+
+IMPORTANT CONTEXT:
+The current repository already has:
+- Starknet Sepolia testnet setup
+- Wallet connection (Argent X / Braavos)
+- Commit–reveal style logic
+- Basic UI and scripts
+
+The goal is to ADAPT the project into a PRIVATE VOTING application,
+NOT to start from scratch and NOT to overengineer.
+
+New project objective:
+Transform this project into a privacy-preserving voting system on Starknet,
+where individual votes are confidential and only the final result is revealed.
+
+Core concept (must be followed):
+- Each voter submits a vote as a hashed commitment
+- Votes are NOT stored in plaintext on-chain
+- During the reveal phase, voters reveal their vote
+- The contract tallies the final result
+- Individual votes are never visible before reveal
+
+What to do (step by step):
+1) Rename the project conceptually from auction to private voting
+   - Update variable names, function names, and comments accordingly
+   - Example: bid -> vote, auction -> poll
+
+2) Update the Cairo smart contract:
+   - createPoll
+   - commitVote(hash)
+   - revealVote(choice, nonce)
+   - tallyResults
+   Do NOT add ZK circuits or heavy cryptography.
+   Use commit–reveal as simplified confidential-style logic.
+
+3) Keep Starknet Sepolia testnet as the deployment target.
+
+4) Keep wallet interaction exactly as is:
+   - Users must sign transactions with a Starknet wallet
+   - msg.sender must be used to identify voters
+
+5) Update or add minimal starknet.js scripts so a user can:
+   - connect wallet
+   - commit a vote
+   - reveal a vote
+   - view final results
+
+6) Update the UI only where necessary:
+   - Change labels and messages to voting terminology
+   - Do NOT redesign the UI
+
+7) Rewrite the README.md so a juror understands the project in under 1 minute.
+   The README must clearly explain:
+   - What the project does (private voting)
+   - Why vote privacy matters
+   - How commit–reveal provides confidentiality
+   - How to deploy and run on Starknet Sepolia
+   - How to demo the voting flow
+
+Constraints:
+- Hackathon MVP only
+- No new features beyond private voting
+- No overengineering
+- Focus on clarity, usability, and correctness
+
+Start by reviewing the existing repository, listing the minimal changes needed,
+and then implement them.

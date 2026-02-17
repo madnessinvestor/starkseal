@@ -1,35 +1,35 @@
 import { db } from "./db";
-import { auctions, type InsertAuction, type Auction } from "@shared/schema";
+import { polls, type InsertPoll, type Poll } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  // Auction methods
-  createAuction(auction: InsertAuction): Promise<Auction>;
-  getAuction(id: number): Promise<Auction | undefined>;
-  getAuctions(): Promise<Auction[]>;
-  updateAuctionContractId(id: number, contractId: number, txHash: string): Promise<Auction | undefined>;
+  // Poll methods
+  createPoll(poll: InsertPoll): Promise<Poll>;
+  getPoll(id: number): Promise<Poll | undefined>;
+  getPolls(): Promise<Poll[]>;
+  updatePollContractId(id: number, contractId: number, txHash: string): Promise<Poll | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async createAuction(insertAuction: InsertAuction): Promise<Auction> {
-    const [auction] = await db.insert(auctions).values(insertAuction).returning();
-    return auction;
+  async createPoll(insertPoll: InsertPoll): Promise<Poll> {
+    const [poll] = await db.insert(polls).values(insertPoll).returning();
+    return poll;
   }
 
-  async getAuction(id: number): Promise<Auction | undefined> {
-    const [auction] = await db.select().from(auctions).where(eq(auctions.id, id));
-    return auction;
+  async getPoll(id: number): Promise<Poll | undefined> {
+    const [poll] = await db.select().from(polls).where(eq(polls.id, id));
+    return poll;
   }
 
-  async getAuctions(): Promise<Auction[]> {
-    return await db.select().from(auctions);
+  async getPolls(): Promise<Poll[]> {
+    return await db.select().from(polls);
   }
 
-  async updateAuctionContractId(id: number, contractId: number, txHash: string): Promise<Auction | undefined> {
+  async updatePollContractId(id: number, contractId: number, txHash: string): Promise<Poll | undefined> {
     const [updated] = await db
-      .update(auctions)
-      .set({ contractAuctionId: contractId, transactionHash: txHash, status: "active" })
-      .where(eq(auctions.id, id))
+      .update(polls)
+      .set({ contractPollId: contractId, transactionHash: txHash, status: "active" })
+      .where(eq(polls.id, id))
       .returning();
     return updated;
   }

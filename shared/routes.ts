@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { insertAuctionSchema, auctions } from './schema';
+import { z } from "zod";
+import { insertPollSchema, polls } from "./schema";
 
 export const errorSchemas = {
   validation: z.object({
@@ -11,37 +11,37 @@ export const errorSchemas = {
 };
 
 export const api = {
-  auctions: {
+  polls: {
     list: {
       method: 'GET' as const,
-      path: '/api/auctions' as const,
+      path: '/api/polls' as const,
       responses: {
-        200: z.array(z.custom<typeof auctions.$inferSelect>()),
+        200: z.array(z.custom<typeof polls.$inferSelect>()),
       },
     },
     create: {
       method: 'POST' as const,
-      path: '/api/auctions' as const,
-      input: insertAuctionSchema,
+      path: '/api/polls' as const,
+      input: insertPollSchema,
       responses: {
-        201: z.custom<typeof auctions.$inferSelect>(),
+        201: z.custom<typeof polls.$inferSelect>(),
         400: errorSchemas.validation,
       },
     },
     get: {
       method: 'GET' as const,
-      path: '/api/auctions/:id' as const,
+      path: '/api/polls/:id' as const,
       responses: {
-        200: z.custom<typeof auctions.$inferSelect>(),
+        200: z.custom<typeof polls.$inferSelect>(),
         404: errorSchemas.notFound,
       },
     },
-    updateContractId: { // To update with the on-chain ID after transaction confirms
+    updateContractId: {
       method: 'PATCH' as const,
-      path: '/api/auctions/:id/contract-id' as const,
-      input: z.object({ contractAuctionId: z.number(), transactionHash: z.string() }),
+      path: '/api/polls/:id/contract-id' as const,
+      input: z.object({ contractPollId: z.number(), transactionHash: z.string() }),
       responses: {
-        200: z.custom<typeof auctions.$inferSelect>(),
+        200: z.custom<typeof polls.$inferSelect>(),
       },
     }
   },

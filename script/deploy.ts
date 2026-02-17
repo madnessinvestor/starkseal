@@ -19,11 +19,11 @@ async function main() {
 
   const account = new Account(provider, accountAddress, privateKey);
 
-  console.log("Deploying Auction contract to Starknet Sepolia...");
+  console.log("Deploying Voting contract to Starknet Sepolia...");
 
   // Load compiled contract
-  const sierraFile = path.join(__dirname, "../contracts/target/dev/starkseal_Auction.contract_class.json");
-  const casmFile = path.join(__dirname, "../contracts/target/dev/starkseal_Auction.compiled_contract_class.json");
+  const sierraFile = path.join(__dirname, "../contracts/target/dev/starkseal_PrivateVoting.contract_class.json");
+  const casmFile = path.join(__dirname, "../contracts/target/dev/starkseal_PrivateVoting.compiled_contract_class.json");
 
   if (!fs.existsSync(sierraFile) || !fs.existsSync(casmFile)) {
     console.error("Contract not built. Run 'cd contracts && scarb build' first.");
@@ -43,7 +43,7 @@ async function main() {
   console.log("Transaction Hash:", deployResponse.deploy.transaction_hash);
   
   console.log("\nUpdate your .env file with:");
-  console.log(`VITE_AUCTION_CONTRACT_ADDRESS=${deployResponse.deploy.contract_address}`);
+  console.log(`VITE_VOTING_CONTRACT_ADDRESS=${deployResponse.deploy.contract_address}`);
 }
 
 main().catch(console.error);

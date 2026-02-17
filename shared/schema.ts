@@ -1,25 +1,25 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const auctions = pgTable("auctions", {
+export const polls = pgTable("polls", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  contractAuctionId: integer("contract_auction_id"), // ID on Starknet
+  contractPollId: integer("contract_poll_id"), // ID on Starknet
   transactionHash: text("transaction_hash"), // Creation tx hash
-  sellerAddress: text("seller_address").notNull(), // Starknet address
-  biddingEndsAt: timestamp("bidding_ends_at").notNull(),
+  creatorAddress: text("creator_address").notNull(), // Starknet address
+  votingEndsAt: timestamp("voting_ends_at").notNull(),
   revealEndsAt: timestamp("reveal_ends_at").notNull(),
   status: text("status").default("pending"), // pending, active, completed
 });
 
-export const insertAuctionSchema = createInsertSchema(auctions).omit({ 
+export const insertPollSchema = createInsertSchema(polls).omit({ 
   id: true, 
-  contractAuctionId: true, 
+  contractPollId: true, 
   transactionHash: true,
   status: true 
 });
 
-export type Auction = typeof auctions.$inferSelect;
-export type InsertAuction = z.infer<typeof insertAuctionSchema>;
+export type Poll = typeof polls.$inferSelect;
+export type InsertPoll = z.infer<typeof insertPollSchema>;

@@ -9,42 +9,42 @@ export async function connectWallet() {
   return starknet;
 }
 
-export function hashBid(amount: string, salt: string) {
+export function hashVote(choice: string, salt: string) {
   // Simple poseidon hash for MVP
-  return hash.computePoseidonHash(amount, salt);
+  return hash.computePoseidonHash(choice, salt);
 }
 
-export const AUCTION_ABI = [
+export const VOTING_ABI = [
   {
-    "name": "IAuction",
+    "name": "IVoting",
     "type": "interface",
     "items": [
       {
-        "name": "create_auction",
+        "name": "create_poll",
         "type": "function",
         "inputs": [
-          { "name": "bidding_end", "type": "core::integer::u64" },
+          { "name": "voting_end", "type": "core::integer::u64" },
           { "name": "reveal_end", "type": "core::integer::u64" }
         ],
         "outputs": [{ "type": "core::integer::u64" }],
         "state_mutability": "external"
       },
       {
-        "name": "commit_bid",
+        "name": "commit_vote",
         "type": "function",
         "inputs": [
-          { "name": "auction_id", "type": "core::integer::u64" },
-          { "name": "bid_hash", "type": "core::felt252" }
+          { "name": "poll_id", "type": "core::integer::u64" },
+          { "name": "vote_hash", "type": "core::felt252" }
         ],
         "outputs": [],
         "state_mutability": "external"
       },
       {
-        "name": "reveal_bid",
+        "name": "reveal_vote",
         "type": "function",
         "inputs": [
-          { "name": "auction_id", "type": "core::integer::u64" },
-          { "name": "amount", "type": "core::integer::u128" },
+          { "name": "poll_id", "type": "core::integer::u64" },
+          { "name": "choice", "type": "core::integer::u128" },
           { "name": "salt", "type": "core::felt252" }
         ],
         "outputs": [],

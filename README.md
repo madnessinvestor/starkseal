@@ -1,15 +1,15 @@
-# StarkSeal - Privacy-Preserving Auction on Starknet
+# StarkVote - Privacy-Preserving Voting on Starknet
 
 ## Overview
-StarkSeal is a privacy-preserving sealed-bid auction on Starknet. It solves the "front-running" and "copy-cat bidding" problems in public auctions by using a cryptographic **Commit-Reveal** scheme.
+StarkVote is a privacy-preserving voting system on Starknet. It ensures vote confidentiality by using a cryptographic **Commit-Reveal** scheme. Individual votes remain hidden until the reveal phase, preventing social pressure or bandwagon effects.
 
 ### Why Privacy Matters
-In standard on-chain auctions, every bid is public. This allows competitors to see exactly what others are bidding and outbid them by the smallest possible margin, or simply copy their strategy. StarkSeal ensures that bids remain secret until the bidding phase is officially over.
+In standard on-chain voting, every vote is public and immutable. This can lead to voter coercion or tactical voting based on real-time tallies. StarkVote ensures that no one (including the poll creator) knows how someone voted until the reveal phase.
 
-### How Commit-Reveal Works
-1. **Commit Phase**: Bidders submit a hash of their bid (`Poseidon(amount, salt)`). The actual amount is hidden.
-2. **Reveal Phase**: Once bidding ends, bidders "reveal" their bid by submitting the original `amount` and `salt`. The contract verifies the hash matches the commitment.
-3. **Winner Selection**: The highest verified bid wins.
+### How Commit-Reveal Voting Works
+1. **Commit Phase**: Voters submit a hash of their choice and a secret nonce (`Poseidon(choice, salt)`). The actual vote is hidden.
+2. **Reveal Phase**: Once voting ends, voters "reveal" their vote by submitting the original `choice` and `salt`. The contract verifies the hash matches the commitment.
+3. **Tallying**: The contract automatically tallies the revealed votes to show the final result.
 
 ## Starknet Sepolia Deployment
 1. Build the contract:
@@ -27,7 +27,7 @@ In standard on-chain auctions, every bid is public. This allows competitors to s
 
 ## Demo Flow
 1. Connect Argent X or Braavos wallet (Sepolia).
-2. Create an auction with `Bidding End` and `Reveal End` timestamps.
-3. Users commit bids during the bidding phase.
-4. Users reveal bids during the reveal phase.
-5. View the winner once reveals are processed.
+2. Create a poll with `Voting End` and `Reveal End` timestamps.
+3. Voters commit votes during the voting phase.
+4. Voters reveal votes during the reveal phase.
+5. View the final tally once reveals are processed.
