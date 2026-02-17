@@ -75,16 +75,16 @@ function PollCard({ poll }: { poll: any }) {
     <Link href={`/poll/${poll.id}`}>
       <div className="cyber-card p-6 h-full flex flex-col cursor-pointer group hover:-translate-y-1 transition-transform duration-300">
         <div className="flex justify-between items-start mb-4">
-          <div className={`text-[10px] font-mono font-bold border px-2 py-0.5 uppercase tracking-tighter ${
-            isVotingPhase ? 'border-primary text-primary bg-primary/10' :
-            isRevealPhase ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10' :
-            'border-destructive text-destructive bg-destructive/10'
+          <div className={`text-[10px] font-mono font-bold border px-2 py-1 uppercase tracking-tighter shadow-[0_0_10px_rgba(var(--primary),0.2)] ${
+            isVotingPhase ? 'border-primary text-primary bg-primary/20' :
+            isRevealPhase ? 'border-yellow-500 text-yellow-500 bg-yellow-500/20' :
+            'border-destructive text-destructive bg-destructive/20'
           }`}>
             {statusText}
           </div>
-          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/5 border border-primary/20 rounded-sm">
-            <Lock className="w-3 h-3 text-primary/70" />
-            <span className="text-[9px] font-black text-primary/70 uppercase tracking-widest">PRIVATE</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 bg-primary text-black font-black rounded-none skew-x-[-12deg]">
+            <Lock className="w-3 h-3 skew-x-[12deg]" />
+            <span className="text-[10px] uppercase tracking-widest skew-x-[12deg]">PRIVATE_VOTE</span>
           </div>
         </div>
 

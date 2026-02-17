@@ -30,7 +30,8 @@ export default function PollDetails() {
         <div className="lg:col-span-2 space-y-8">
           <header className="cyber-card p-8 border-l-4 border-l-primary">
             <div className="flex justify-between items-start mb-4">
-              <h1 className="text-3xl font-black glitch-text uppercase">{poll.title}</h1>
+              <h1 className="text-sm font-mono text-primary/60 mb-1 tracking-[0.2em]">POLL_QUESTION //</h1>
+              <h1 className="text-4xl font-black glitch-text uppercase mb-4">{poll.title}</h1>
               <div className="text-[10px] font-mono bg-primary/10 text-primary px-2 py-1 border border-primary/20">
                 POLL_ID: {poll.contractPollId || 'PENDING'}
               </div>
@@ -52,16 +53,27 @@ export default function PollDetails() {
           </header>
 
           {isVotingPhase && (
-            <section className="cyber-card p-8 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Lock className="w-24 h-24" />
+            <section className="cyber-card p-8 relative overflow-hidden border-t-4 border-t-primary">
+              <div className="absolute top-0 right-0 p-4 opacity-5">
+                <ShieldCheck className="w-32 h-32" />
               </div>
-              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary" />
-                SUBMIT_PRIVATE_VOTE
+              
+              <div className="bg-primary/10 border border-primary/30 p-4 mb-8 flex items-start gap-4">
+                <Lock className="w-6 h-6 text-primary mt-1 shrink-0" />
+                <div>
+                  <h3 className="text-primary font-black text-sm uppercase mb-1">Confidentiality Protocol Active</h3>
+                  <p className="text-xs text-muted-foreground font-mono leading-relaxed">
+                    Individual votes are cryptographically salted and hashed. Your choice is <span className="text-primary font-bold">never visible</span> to anyone, including the creator. Only the final aggregated tally is revealed after the reveal phase.
+                  </p>
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-black mb-2 flex items-center gap-3">
+                <Vote className="w-6 h-6 text-primary" />
+                CAST_YOUR_SECRET_VOTE
               </h2>
-              <p className="text-xs text-muted-foreground font-mono mb-6 uppercase tracking-tight">
-                Votes are encrypted. Individual choices remain hidden. Only final results are revealed.
+              <p className="text-xs text-muted-foreground font-mono mb-8 uppercase tracking-widest opacity-70">
+                Selection is private • Encrypted on-chain • Zero-knowledge integrity
               </p>
               <CommitForm pollId={pollId} />
             </section>
@@ -201,17 +213,23 @@ function CommitForm({ pollId }: { pollId: number }) {
       <div className="grid grid-cols-2 gap-4">
         <button 
           onClick={() => setChoice("1")}
-          className={`p-6 border-2 font-black transition-all flex flex-col items-center gap-2 ${choice === "1" ? 'bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(var(--primary),0.3)]' : 'bg-black/40 border-primary/10 text-muted-foreground hover:border-primary/40'}`}
+          className={`p-8 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group ${choice === "1" ? 'bg-primary border-primary text-black shadow-[0_0_30px_rgba(var(--primary),0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-primary/40 hover:border-primary/60 hover:text-primary hover:bg-primary/5'}`}
         >
-          <span className="text-2xl">YES</span>
-          <span className="text-[10px] font-mono opacity-60">CONFIRM_PROPOSAL</span>
+          <CheckCircle2 className={`w-12 h-12 ${choice === "1" ? 'text-black' : 'text-primary/20 group-hover:text-primary/40'}`} />
+          <div className="text-center">
+            <span className="text-4xl block">YES</span>
+            <span className="text-[10px] font-mono opacity-60 uppercase mt-1">Accept Proposal</span>
+          </div>
         </button>
         <button 
           onClick={() => setChoice("2")}
-          className={`p-6 border-2 font-black transition-all flex flex-col items-center gap-2 ${choice === "2" ? 'bg-destructive/20 border-destructive text-destructive shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-black/40 border-primary/10 text-muted-foreground hover:border-primary/40'}`}
+          className={`p-8 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group ${choice === "2" ? 'bg-destructive border-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-destructive/40 hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5'}`}
         >
-          <span className="text-2xl">NO</span>
-          <span className="text-[10px] font-mono opacity-60">REJECT_PROPOSAL</span>
+          <EyeOff className={`w-12 h-12 ${choice === "2" ? 'text-white' : 'text-destructive/20 group-hover:text-destructive/40'}`} />
+          <div className="text-center">
+            <span className="text-4xl block">NO</span>
+            <span className="text-[10px] font-mono opacity-60 uppercase mt-1">Reject Proposal</span>
+          </div>
         </button>
       </div>
 
@@ -241,9 +259,19 @@ function CommitForm({ pollId }: { pollId: number }) {
             <button 
               disabled={isSubmitting}
               onClick={handleSubmit}
-              className="w-full cyber-button flex items-center justify-center gap-2"
+              className="w-full cyber-button h-16 flex items-center justify-center gap-3 text-lg"
             >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "BROADCAST_TO_STARKNET"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  ENCRYPTING_AND_SENDING...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-6 h-6" />
+                  CONFIRM_PRIVATE_VOTE
+                </>
+              )}
             </button>
             <p className="text-[10px] text-center text-muted-foreground uppercase">
               Note: Do not clear browser cache after committing.
