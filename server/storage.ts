@@ -33,6 +33,15 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updated;
   }
+
+  async updatePollResults(id: number, option1: number, option2: number): Promise<Poll | undefined> {
+    const [updated] = await db
+      .update(polls)
+      .set({ option_1_votes: option1, option_2_votes: option2 })
+      .where(eq(polls.id, id))
+      .returning();
+    return updated;
+  }
 }
 
 export const storage = new DatabaseStorage();

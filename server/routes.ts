@@ -56,5 +56,23 @@ export async function registerRoutes(
     }
   });
 
+  // Sync Poll Results from Chain
+  app.post("/api/polls/:id/sync", async (req, res) => {
+    try {
+      const { option1, option2 } = req.body;
+      const updated = await (storage as any).updatePollResults(
+        Number(req.params.id),
+        option1,
+        option2
+      );
+      if (!updated) {
+        return res.status(404).json({ message: "Poll not found" });
+      }
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   return httpServer;
 }

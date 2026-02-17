@@ -271,6 +271,22 @@ function RevealForm({ pollId }: { pollId: number }) {
       const { transaction_hash } = await contract.reveal_vote(poll.contractPollId, vote.choice, vote.salt);
       await sn.provider.waitForTransaction(transaction_hash);
       
+      // Sync results after reveal
+      try {
+        const pollInfo = await contract.get_poll_info(poll.contractPollId);
+        // pollInfo format: [creator, voting_end, reveal_end, option_1_votes, option_2_votes]
+        await fetch(`/api/polls/${pollId}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            option1: Number(pollInfo[3] || pollInfo.option_1_votes),
+            option2: Number(pollInfo[4] || pollInfo.option_2_votes),
+          })
+        });
+      } catch (syncErr) {
+        console.error("Failed to sync results:", syncErr);
+      }
+
       updateVoteStatus(pollId, 'revealed');
       toast({ title: "Vote Revealed!", description: `Successfully revealed choice ${vote.choice}.` });
       window.location.reload();
