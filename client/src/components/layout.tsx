@@ -41,15 +41,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center space-x-2 cursor-pointer group">
               <Shield className="w-8 h-8 text-primary group-hover:animate-pulse" />
               <span className="text-xl font-bold tracking-widest text-white group-hover:text-primary transition-colors">
-                STARK<span className="text-primary">SEAL</span>
+                STARK<span className="text-primary">VOTE</span>
               </span>
             </div>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
             <NavLink href="/" active={location === "/"}>DASHBOARD</NavLink>
-            <NavLink href="/create" active={location === "/create"}>INIT_AUCTION</NavLink>
-            <NavLink href="/my-bids" active={location === "/my-bids"}>MY_COMMITS</NavLink>
+            <NavLink href="/create" active={location === "/create"}>INIT_POLL</NavLink>
+            <NavLink href="/my-votes" active={location === "/my-votes"}>MY_COMMITS</NavLink>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -95,7 +95,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Cpu className="w-4 h-4" />
             <span>SYSTEM_STATUS: ONLINE</span>
           </div>
-          <p>STARKSEAL v0.1.0 // ZK-POWERED PRIVACY</p>
+          <p>STARKVOTE v0.1.0 // ZK-POWERED PRIVACY</p>
         </div>
       </footer>
     </div>

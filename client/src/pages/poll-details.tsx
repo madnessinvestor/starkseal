@@ -1,0 +1,361 @@
+import { useState, useEffect } from "react";
+import { useRoute } from "wouter";
+import { usePoll, useUpdateContractId } from "@/hooks/use-polls";
+import { Layout } from "@/components/layout";
+import { CountdownTimer } from "@/components/countdown-timer";
+import { hashVote, VOTING_ABI } from "@/lib/starknet";
+import { saveVoteLocally, getVoteForPoll, updateVoteStatus } from "@/lib/starknet-mock";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ShieldCheck, Eye, EyeOff, Hash, Lock, CheckCircle2, Vote } from "lucide-react";
+import { connect } from "get-starknet";
+import { Contract } from "starknet";
+import { format } from "date-fns";
+
+export default function PollDetails() {
+  const [, params] = useRoute("/poll/:id");
+  const pollId = Number(params?.id);
+  const { data: poll, isLoading, error } = usePoll(pollId);
+  const localVote = getVoteForPoll(pollId);
+
+  if (isLoading) return <LoadingScreen />;
+  if (error || !poll) return <NotFoundScreen />;
+
+  const isVotingPhase = new Date() < new Date(poll.votingEndsAt);
+  const isRevealPhase = !isVotingPhase && new Date() < new Date(poll.revealEndsAt);
+  const isEnded = new Date() > new Date(poll.revealEndsAt);
+
+  return (
+    <Layout>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <header className="cyber-card p-8 border-l-4 border-l-primary">
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-3xl font-black glitch-text uppercase">{poll.title}</h1>
+              <div className="text-[10px] font-mono bg-primary/10 text-primary px-2 py-1 border border-primary/20">
+                POLL_ID: {poll.contractPollId || 'PENDING'}
+              </div>
+            </div>
+            <p className="text-muted-foreground text-lg leading-relaxed mb-6">
+              {poll.description}
+            </p>
+            <div className="flex flex-wrap gap-4 text-xs font-mono">
+              <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
+                <span className="text-primary/60">CREATOR:</span>
+                <span className="text-white">{poll.creatorAddress.substring(0, 10)}...</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-2 bg-black/50 border border-primary/10">
+                <span className="text-primary/60">NETWORK:</span>
+                <span className="text-white">STARKNET_SEPOLIA</span>
+              </div>
+            </div>
+          </header>
+
+          {isVotingPhase && (
+            <section className="cyber-card p-8 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Lock className="w-24 h-24" />
+              </div>
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-primary" />
+                SUBMIT_PRIVATE_VOTE
+              </h2>
+              <CommitForm pollId={pollId} />
+            </section>
+          )}
+
+          {isRevealPhase && (
+            <section className="cyber-card p-8 bg-yellow-500/5 border-yellow-500/20">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-yellow-500">
+                <Eye className="w-5 h-5" />
+                REVEAL_PHASE_ACTIVE
+              </h2>
+              <RevealForm pollId={pollId} />
+            </section>
+          )}
+
+          {isEnded && (
+            <section className="cyber-card p-8 border-primary/40 bg-primary/5">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-primary" />
+                POLL_RESULTS
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-6 bg-black/40 border border-primary/20">
+                  <p className="text-xs text-primary/60 mb-1">OPTION_1_VOTES</p>
+                  <p className="text-3xl font-black text-white">{poll.option_1_votes || 0}</p>
+                </div>
+                <div className="p-6 bg-black/40 border border-primary/20">
+                  <p className="text-xs text-primary/60 mb-1">OPTION_2_VOTES</p>
+                  <p className="text-3xl font-black text-white">{poll.option_2_votes || 0}</p>
+                </div>
+              </div>
+            </section>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <div className="cyber-card p-6">
+            <h3 className="text-sm font-bold text-primary mb-4 tracking-widest uppercase">Time Remaining</h3>
+            <CountdownTimer targetDate={isVotingPhase ? poll.votingEndsAt : poll.revealEndsAt} />
+            <p className="text-[10px] text-muted-foreground mt-2 font-mono uppercase">
+              Current Phase: {isVotingPhase ? 'VOTING' : isRevealPhase ? 'REVEAL' : 'ENDED'}
+            </p>
+          </div>
+
+          <div className="cyber-card p-6 space-y-6">
+            <h3 className="text-sm font-bold text-primary mb-4 tracking-widest uppercase">Protocol Status</h3>
+            <div className="space-y-4">
+              <StatusStep 
+                active={isVotingPhase} 
+                completed={!isVotingPhase} 
+                title="COMMIT" 
+                desc="Voters submit encrypted hashes" 
+              />
+              <StatusStep 
+                active={isRevealPhase} 
+                completed={isEnded} 
+                title="REVEAL" 
+                desc="Voters reveal original choices" 
+              />
+              <StatusStep 
+                active={isEnded} 
+                completed={false} 
+                title="TALLY" 
+                desc="Final result is calculated" 
+              />
+            </div>
+          </div>
+
+          {localVote && (
+            <div className="cyber-card p-6 border-primary/30 bg-primary/5">
+              <h3 className="text-sm font-bold text-primary mb-2 flex items-center gap-2 uppercase">
+                <ShieldCheck className="w-4 h-4" /> Local Record Found
+              </h3>
+              <p className="text-[10px] text-muted-foreground font-mono leading-tight">
+                You have a {localVote.status} vote stored in this browser for this poll.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+function CommitForm({ pollId }: { pollId: number }) {
+  const [choice, setChoice] = useState<"1" | "2" | "">("");
+  const [salt, setSalt] = useState("");
+  const [commitment, setCommitment] = useState("");
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const { data: poll } = usePoll(pollId);
+
+  const handleGenerate = async () => {
+    if (!choice) return;
+    setIsCalculating(true);
+    const newSalt = "0x" + Math.random().toString(16).slice(2);
+    const hash = hashVote(choice, newSalt);
+    setSalt(newSalt);
+    setCommitment(hash);
+    setIsCalculating(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!commitment || !choice || !salt || !poll) return;
+    setIsSubmitting(true);
+    
+    try {
+      const starknet = await connect();
+      if (!starknet) throw new Error("Connect wallet");
+      const sn = starknet as any;
+      if (sn.enable) await sn.enable();
+      
+      const contractAddress = import.meta.env.VITE_VOTING_CONTRACT_ADDRESS;
+      const contract = new Contract(VOTING_ABI, contractAddress, sn.account);
+      
+      const { transaction_hash } = await contract.commit_vote(poll.contractPollId, commitment);
+      
+      saveVoteLocally({
+        pollId,
+        choice: Number(choice),
+        salt,
+        txHash: transaction_hash,
+        status: 'committed'
+      });
+
+      toast({ title: "Vote Committed", description: "Hash sent to Starknet." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <button 
+          onClick={() => setChoice("1")}
+          className={`p-4 border font-bold transition-all ${choice === "1" ? 'bg-primary/20 border-primary text-primary' : 'bg-black/40 border-primary/20 text-muted-foreground hover:border-primary/40'}`}
+        >
+          OPTION_1
+        </button>
+        <button 
+          onClick={() => setChoice("2")}
+          className={`p-4 border font-bold transition-all ${choice === "2" ? 'bg-primary/20 border-primary text-primary' : 'bg-black/40 border-primary/20 text-muted-foreground hover:border-primary/40'}`}
+        >
+          OPTION_2
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {!commitment ? (
+          <button 
+            disabled={!choice || isCalculating}
+            onClick={handleGenerate}
+            className="w-full h-12 border border-primary text-primary font-bold hover:bg-primary/10 disabled:opacity-30 flex items-center justify-center gap-2"
+          >
+            {isCalculating && <Loader2 className="w-4 h-4 animate-spin" />}
+            GENERATE_COMMITMENT_HASH
+          </button>
+        ) : (
+          <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+            <div className="p-4 bg-black/60 border border-primary/30 space-y-3 font-mono text-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-primary/60">SALT (SECRET):</span>
+                <span className="text-white bg-primary/20 px-1">{salt}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-primary/60">COMMITMENT:</span>
+                <span className="text-white truncate max-w-[150px]">{commitment}</span>
+              </div>
+            </div>
+            
+            <button 
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+              className="w-full cyber-button flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "BROADCAST_TO_STARKNET"}
+            </button>
+            <p className="text-[10px] text-center text-muted-foreground uppercase">
+              Note: Do not clear browser cache after committing.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RevealForm({ pollId }: { pollId: number }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const vote = getVoteForPoll(pollId);
+  const { data: poll } = usePoll(pollId);
+
+  const handleReveal = async () => {
+    if (!vote || !poll) return;
+    setIsSubmitting(true);
+    
+    try {
+      const starknet = await connect();
+      if (!starknet) throw new Error("Connect wallet");
+      const sn = starknet as any;
+      if (sn.enable) await sn.enable();
+      
+      const contractAddress = import.meta.env.VITE_VOTING_CONTRACT_ADDRESS;
+      const contract = new Contract(VOTING_ABI, contractAddress, sn.account);
+      
+      const { transaction_hash } = await contract.reveal_vote(poll.contractPollId, vote.choice, vote.salt);
+      await sn.provider.waitForTransaction(transaction_hash);
+      
+      updateVoteStatus(pollId, 'revealed');
+      toast({ title: "Vote Revealed!", description: `Successfully revealed choice ${vote.choice}.` });
+      window.location.reload();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!vote) {
+    return (
+      <div className="text-center py-6 border border-dashed border-yellow-500/30">
+        <p className="text-yellow-500/60 text-sm">NO_LOCAL_COMMIT_FOUND</p>
+        <p className="text-[10px] text-muted-foreground mt-1">You must use the same browser used for committing.</p>
+      </div>
+    );
+  }
+
+  if (vote.status === 'revealed') {
+    return (
+      <div className="text-center py-6 bg-primary/10 border border-primary/30">
+        <CheckCircle2 className="w-8 h-8 text-primary mx-auto mb-2" />
+        <p className="text-primary font-bold">VOTE_REVEALED_SUCCESSFULLY</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="p-4 bg-black/60 border border-yellow-500/30 font-mono text-xs">
+        <p className="text-yellow-500/60 mb-2">STORED_VOTE_DATA:</p>
+        <div className="flex justify-between mb-1">
+          <span>CHOICE:</span>
+          <span className="text-white">{vote.choice}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>SALT:</span>
+          <span className="text-white truncate max-w-[120px]">{vote.salt}</span>
+        </div>
+      </div>
+      
+      <button 
+        disabled={isSubmitting}
+        onClick={handleReveal}
+        className="w-full py-3 bg-yellow-500 text-black font-black hover:bg-yellow-400 disabled:opacity-50 flex items-center justify-center gap-2"
+      >
+        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "REVEAL_VOTE_ON_CHAIN"}
+      </button>
+    </div>
+  );
+}
+
+function StatusStep({ active, completed, title, desc }: { active: boolean, completed: boolean, title: string, desc: string }) {
+  return (
+    <div className={`flex items-start gap-3 ${active ? 'opacity-100' : 'opacity-40'}`}>
+      <div className={`w-2 h-2 rounded-full mt-2 ${completed ? 'bg-primary' : active ? 'bg-yellow-500 animate-pulse' : 'bg-muted'}`} />
+      <div>
+        <p className={`text-sm font-bold ${active ? 'text-white' : 'text-muted-foreground'}`}>{title}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <Layout>
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <p className="text-primary font-mono animate-pulse">ESTABLISHING_UPLINK...</p>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+function NotFoundScreen() {
+  return (
+    <Layout>
+      <div className="text-center py-20">
+        <h1 className="text-4xl font-bold text-destructive mb-4">404 // DATA_LOSS</h1>
+        <p className="text-muted-foreground">The requested poll stream could not be found.</p>
+      </div>
+    </Layout>
+  );
+}
