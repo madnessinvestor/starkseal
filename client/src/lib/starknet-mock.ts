@@ -1,59 +1,33 @@
-
-// Mock types for Starknet interactions
-export interface AuctionCommitment {
-  auctionId: number;
-  commitment: string; // Hash
-  timestamp: number;
-}
-
-export interface BidLocalData {
-  amount: number;
+export interface VoteLocalData {
+  pollId: number;
+  choice: number;
   salt: string;
-  auctionId: number;
   txHash: string;
   status: 'committed' | 'revealed';
 }
 
-// Simple Poseidon-like hash simulation for the frontend
-export const poseidonHash = async (amount: number, salt: string): Promise<string> => {
-  // In a real app, this would use starknet.js poseidon hash
-  // Here we just use SHA-256 for the mock to be deterministic
-  const msg = `${amount}-${salt}`;
-  const encoder = new TextEncoder();
-  const data = encoder.encode(msg);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return `0x${hashHex.substring(0, 60)}`; // Truncate to look like a felt
-};
+const STORAGE_KEY = 'starkvote_local_votes';
 
-export const generateSalt = (): string => {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-};
+export function saveVoteLocally(vote: VoteLocalData) {
+  const votes = getLocalVotes();
+  votes.push(vote);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+}
 
-// Local storage helper for keeping track of user's secrets
-const STORAGE_KEY = 'starkseal_bids';
-
-export const saveBidLocally = (bid: BidLocalData) => {
-  const existing = getLocalBids();
-  existing.push(bid);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
-};
-
-export const updateBidStatus = (auctionId: number, status: 'revealed') => {
-  const bids = getLocalBids();
-  const bidIndex = bids.findIndex(b => b.auctionId === auctionId);
-  if (bidIndex !== -1) {
-    bids[bidIndex].status = status;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bids));
-  }
-};
-
-export const getLocalBids = (): BidLocalData[] => {
+export function getLocalVotes(): VoteLocalData[] {
   const data = localStorage.getItem(STORAGE_KEY);
   return data ? JSON.parse(data) : [];
-};
+}
 
-export const getBidForAuction = (auctionId: number): BidLocalData | undefined => {
-  return getLocalBids().find(b => b.auctionId === auctionId);
-};
+export function getVoteForPoll(pollId: number): VoteLocalData | undefined {
+  return getLocalVotes().find(v => v.pollId === pollId);
+}
+
+export function updateVoteStatus(pollId: number, status: 'revealed') {
+  const votes = getLocalVotes();
+  const index = votes.findIndex(v => v.pollId === pollId);
+  if (index !== -1) {
+    votes[index].status = status;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(votes));
+  }
+}
