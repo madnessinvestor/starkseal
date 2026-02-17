@@ -95,7 +95,7 @@ export default function PollDetails() {
                 <CheckCircle2 className="w-5 h-5 text-primary" />
                 FINAL_VOTING_RESULTS
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-6 bg-black/40 border border-primary/20">
                   <p className="text-xs text-primary/60 mb-1 font-mono uppercase tracking-widest">Total YES Votes</p>
                   <p className="text-3xl font-black text-white">{poll.yes_votes || 0}</p>
@@ -103,6 +103,10 @@ export default function PollDetails() {
                 <div className="p-6 bg-black/40 border border-primary/20">
                   <p className="text-xs text-destructive/60 mb-1 font-mono uppercase tracking-widest">Total NO Votes</p>
                   <p className="text-3xl font-black text-white">{poll.no_votes || 0}</p>
+                </div>
+                <div className="p-6 bg-black/40 border border-muted/20">
+                  <p className="text-xs text-muted-foreground/60 mb-1 font-mono uppercase tracking-widest">Total ABSTAIN Votes</p>
+                  <p className="text-3xl font-black text-white">{poll.abstain_votes || 0}</p>
                 </div>
               </div>
               <p className="mt-6 text-[10px] text-muted-foreground font-mono uppercase text-center opacity-60">
@@ -113,6 +117,32 @@ export default function PollDetails() {
         </div>
 
         <div className="space-y-6">
+          <div className="cyber-card p-6">
+            <h3 className="text-sm font-bold text-primary mb-4 tracking-widest uppercase">Voting Terms</h3>
+            <div className="space-y-3 text-[11px] font-mono leading-tight text-muted-foreground">
+              <div className="flex gap-2">
+                <ShieldCheck className="w-3 h-3 text-primary shrink-0" />
+                <span>Your vote is secret and anonymous.</span>
+              </div>
+              <div className="flex gap-2">
+                <EyeOff className="w-3 h-3 text-primary shrink-0" />
+                <span>No one can see individual votes.</span>
+              </div>
+              <div className="flex gap-2">
+                <Hash className="w-3 h-3 text-primary shrink-0" />
+                <span>Each wallet can vote only once.</span>
+              </div>
+              <div className="flex gap-2">
+                <CheckCircle2 className="w-3 h-3 text-primary shrink-0" />
+                <span>Only the final aggregated result will be shown.</span>
+              </div>
+              <div className="flex gap-2">
+                <Info className="w-3 h-3 text-primary shrink-0" />
+                <span>ABSTAIN means you chose not to vote YES or NO.</span>
+              </div>
+            </div>
+          </div>
+
           <div className="cyber-card p-6">
             <h3 className="text-sm font-bold text-primary mb-4 tracking-widest uppercase">Time Remaining</h3>
             <CountdownTimer targetDate={isVotingPhase ? poll.votingEndsAt : poll.revealEndsAt} />
@@ -162,7 +192,7 @@ export default function PollDetails() {
 }
 
 function CommitForm({ pollId }: { pollId: number }) {
-  const [choice, setChoice] = useState<"1" | "2" | "">("");
+  const [choice, setChoice] = useState<"1" | "2" | "3" | "">("");
   const [salt, setSalt] = useState("");
   const [commitment, setCommitment] = useState("");
   const [isCalculating, setIsCalculating] = useState(false);
@@ -213,20 +243,30 @@ function CommitForm({ pollId }: { pollId: number }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button 
           onClick={() => setChoice("1")}
-          className={`p-10 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group rounded-sm ${choice === "1" ? 'bg-primary border-primary text-black shadow-[0_0_30px_rgba(var(--primary),0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-primary/40 hover:border-primary/60 hover:text-primary hover:bg-primary/5'}`}
+          className={`p-6 border-2 font-black transition-all flex flex-col items-center justify-center gap-2 group rounded-sm ${choice === "1" ? 'bg-primary border-primary text-black shadow-[0_0_30px_rgba(var(--primary),0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-primary/40 hover:border-primary/60 hover:text-primary hover:bg-primary/5'}`}
         >
-          <span className="text-5xl block">YES</span>
-          <span className="text-xs font-mono opacity-80 uppercase tracking-tighter">Private Vote</span>
+          <span className="text-3xl block">YES</span>
+          <span className="text-[10px] font-mono opacity-80 uppercase tracking-tighter">Approve / Agree</span>
+          <span className="text-[10px] font-bold text-black/60 bg-black/10 px-1">Private Vote</span>
         </button>
         <button 
           onClick={() => setChoice("2")}
-          className={`p-10 border-2 font-black transition-all flex flex-col items-center justify-center gap-4 group rounded-sm ${choice === "2" ? 'bg-destructive border-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-destructive/40 hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5'}`}
+          className={`p-6 border-2 font-black transition-all flex flex-col items-center justify-center gap-2 group rounded-sm ${choice === "2" ? 'bg-destructive border-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-destructive/40 hover:border-destructive/60 hover:text-destructive hover:bg-destructive/5'}`}
         >
-          <span className="text-5xl block">NO</span>
-          <span className="text-xs font-mono opacity-80 uppercase tracking-tighter">Private Vote</span>
+          <span className="text-3xl block">NO</span>
+          <span className="text-[10px] font-mono opacity-80 uppercase tracking-tighter">Reject / Disagree</span>
+          <span className="text-[10px] font-bold text-white/60 bg-white/10 px-1">Private Vote</span>
+        </button>
+        <button 
+          onClick={() => setChoice("3")}
+          className={`p-6 border-2 font-black transition-all flex flex-col items-center justify-center gap-2 group rounded-sm ${choice === "3" ? 'bg-muted-foreground border-muted-foreground text-black shadow-[0_0_30px_rgba(100,100,100,0.5)] scale-[1.02]' : 'bg-black/40 border-primary/20 text-muted-foreground/40 hover:border-muted-foreground/60 hover:text-muted-foreground hover:bg-muted-foreground/5'}`}
+        >
+          <span className="text-2xl block">ABSTAIN</span>
+          <span className="text-[10px] font-mono opacity-80 uppercase tracking-tighter">No Position</span>
+          <span className="text-[10px] font-bold text-black/60 bg-black/10 px-1">Private Vote</span>
         </button>
       </div>
 
@@ -302,13 +342,14 @@ function RevealForm({ pollId }: { pollId: number }) {
       // Sync results after reveal
       try {
         const pollInfo = await contract.get_poll_info(poll.contractPollId);
-        // pollInfo format: [creator, voting_end, reveal_end, yes_votes, no_votes]
+        // pollInfo format: [creator, voting_end, reveal_end, yes_votes, no_votes, abstain_votes]
         await fetch(`/api/polls/${pollId}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             yesVotes: Number(pollInfo[3] || pollInfo.yes_votes),
             noVotes: Number(pollInfo[4] || pollInfo.no_votes),
+            abstainVotes: Number(pollInfo[5] || pollInfo.abstain_votes),
           })
         });
       } catch (syncErr) {

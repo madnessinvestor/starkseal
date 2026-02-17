@@ -57,7 +57,7 @@ export const VOTING_ABI = [
           { "name": "poll_id", "type": "core::integer::u64" }
         ],
         "outputs": [
-          { "type": "(core::felt252, core::integer::u64, core::integer::u64, core::integer::u128, core::integer::u128)" }
+          { "type": "(core::felt252, core::integer::u64, core::integer::u64, core::integer::u128, core::integer::u128, core::integer::u128)" }
         ],
         "state_mutability": "view"
       }

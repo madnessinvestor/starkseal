@@ -59,11 +59,12 @@ export async function registerRoutes(
   // Sync Poll Results from Chain
   app.post("/api/polls/:id/sync", async (req, res) => {
     try {
-      const { yesVotes, noVotes } = req.body;
+      const { yesVotes, noVotes, abstainVotes } = req.body;
       const updated = await storage.updatePollResults(
         Number(req.params.id),
         yesVotes,
-        noVotes
+        noVotes,
+        abstainVotes
       );
       if (!updated) {
         return res.status(404).json({ message: "Poll not found" });

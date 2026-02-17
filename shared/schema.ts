@@ -14,6 +14,7 @@ export const polls = pgTable("polls", {
   status: text("status").default("pending"), // pending, active, completed
   yes_votes: integer("yes_votes").default(0),
   no_votes: integer("no_votes").default(0),
+  abstain_votes: integer("abstain_votes").default(0),
 });
 
 export const insertPollSchema = createInsertSchema(polls).omit({ 
@@ -22,7 +23,8 @@ export const insertPollSchema = createInsertSchema(polls).omit({
   transactionHash: true,
   status: true,
   yes_votes: true,
-  no_votes: true
+  no_votes: true,
+  abstain_votes: true
 });
 
 export type Poll = typeof polls.$inferSelect;
