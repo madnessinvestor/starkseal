@@ -1,5 +1,5 @@
-import { Contract, Provider, Account, ec, hash, CallData } from "starknet";
-import { connect, disconnect } from "get-starknet";
+import { hash, uint256 } from "starknet";
+import { connect } from "get-starknet";
 
 export async function connectWallet() {
   const starknet = await connect();
@@ -10,7 +10,6 @@ export async function connectWallet() {
 
 export function hashBid(amount: string, salt: string) {
   // Simple poseidon hash for MVP
-  // In a real app, this should match the Cairo implementation exactly
   return hash.computePoseidonHash(amount, salt);
 }
 
