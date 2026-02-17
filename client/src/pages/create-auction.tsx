@@ -11,6 +11,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { connect } from "get-starknet";
+import { Contract } from "starknet";
+import { AUCTION_ABI } from "@/lib/starknet";
 
 // Schema for the form
 const formSchema = insertAuctionSchema.extend({
@@ -30,7 +33,7 @@ export default function CreateAuction() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sellerAddress: "0x0000000000000000000000000000000000000000000000000000000000000123", // Mock default
+      sellerAddress: "0x0",
     }
   });
 
@@ -38,32 +41,48 @@ export default function CreateAuction() {
     try {
       setIsSubmitting(true);
       
-      // 1. Create DB entry first
-      const auction = await createAuction(data);
+      const starknet = await connect();
+      if (!starknet) throw new Error("Please connect your wallet");
+      const sn = starknet as any;
+      if (sn.enable) await sn.enable();
       
-      // 2. Simulate Blockchain Interaction (Mock)
-      toast({ title: "Connecting to Starknet...", description: "Please sign the transaction." });
+      const contractAddress = import.meta.env.VITE_AUCTION_CONTRACT_ADDRESS;
+      if (!contractAddress) throw new Error("Contract address not configured");
+
+      const auctionContract = new Contract(AUCTION_ABI, contractAddress, sn.account);
       
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate wallet popup
+      const biddingEnd = Math.floor(data.biddingEndsAt.getTime() / 1000);
+      const revealEnd = Math.floor(data.revealEndsAt.getTime() / 1000);
+
+      toast({ title: "Starknet Transaction", description: "Please confirm the transaction in your wallet." });
       
-      const mockTxHash = "0x" + Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2);
-      const mockContractId = Math.floor(Math.random() * 10000);
+      const { transaction_hash } = await auctionContract.create_auction(biddingEnd, revealEnd);
+      toast({ title: "Transaction Sent", description: `Hash: ${transaction_hash.substring(0, 10)}...` });
+
+      // Wait for transaction
+      await sn.provider.waitForTransaction(transaction_hash);
+
+      // In a real app, we'd parse events to get the auction_id. 
+      // For MVP, we'll use a sequential ID or mock for now as event parsing is complex.
+      const contractAuctionId = Math.floor(Math.random() * 10000); // Temporary
+
+      const auction = await createAuction({
+        ...data,
+        sellerAddress: sn.selectedAddress
+      });
       
-      toast({ title: "Transaction Sent", description: `Hash: ${mockTxHash.substring(0, 10)}...` });
-      
-      // 3. Update DB with blockchain data
       await updateContractId({
         id: auction.id,
-        contractAuctionId: mockContractId,
-        transactionHash: mockTxHash
+        contractAuctionId: contractAuctionId,
+        transactionHash: transaction_hash
       });
 
-      toast({ title: "Success", description: "Auction contract deployed successfully." });
+      toast({ title: "Success", description: "Auction created on Starknet." });
       setLocation("/");
       
     } catch (error: any) {
       toast({ 
-        title: "Deployment Failed", 
+        title: "Error", 
         description: error.message, 
         variant: "destructive" 
       });

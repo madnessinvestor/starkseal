@@ -1,10 +1,14 @@
-import { hash, uint256 } from "starknet";
+import { hash } from "starknet";
 import { connect } from "get-starknet";
 
 export async function connectWallet() {
   const starknet = await connect();
   if (!starknet) throw new Error("User rejected wallet connection");
-  await starknet.enable();
+  
+  const sn = starknet as any;
+  if (sn.enable) {
+    await sn.enable();
+  }
   return starknet;
 }
 

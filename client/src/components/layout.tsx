@@ -1,8 +1,32 @@
 import { Link, useLocation } from "wouter";
-import { Terminal, Shield, Gavel, Cpu } from "lucide-react";
+import { Terminal, Shield, Gavel, Cpu, Wallet } from "lucide-react";
+import { useState, useEffect } from "react";
+import { connect, disconnect } from "get-starknet";
+import { Button } from "@/components/ui/button";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const [address, setAddress] = useState<string | null>(null);
+
+  const handleConnect = async () => {
+    try {
+      const starknet = await connect();
+      if (starknet) {
+        const sn = starknet as any;
+        if (sn.enable) {
+          await sn.enable();
+        }
+        setAddress(sn.selectedAddress || null);
+      }
+    } catch (err) {
+      console.error("Wallet connection failed", err);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    await disconnect();
+    setAddress(null);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-mono relative overflow-hidden">
@@ -32,6 +56,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="text-xs text-primary/60 hidden sm:block">
               NET: <span className="text-primary font-bold">STARKNET_SEPOLIA</span>
             </div>
+            
+            {address ? (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDisconnect}
+                className="border-primary/50 text-primary hover:bg-primary/10 text-xs"
+              >
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </Button>
+            ) : (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleConnect}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs"
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                CONNECT_WALLET
+              </Button>
+            )}
+            
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
           </div>
         </div>
