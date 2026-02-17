@@ -1,0 +1,9 @@
+[package]
+name = "starkseal"
+version = "0.1.0"
+
+[dependencies]
+starknet = "2.4.0"
+
+[[target.starknet-contract]]
+sierra = true
