@@ -5,10 +5,7 @@ export async function connectWallet() {
   const starknet = await connect();
   if (!starknet) throw new Error("User rejected wallet connection");
   
-  const sn = starknet as any;
-  if (sn.enable) {
-    await sn.enable();
-  }
+  await (starknet as any).enable();
   return starknet;
 }
 
