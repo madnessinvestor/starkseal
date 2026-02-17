@@ -15,7 +15,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer group">
-              <Shield className="w-8 h-8 text-primary group-hover:animate-pulse" />
+              <img src="/static/starknet-logo.png" className="w-8 h-8 group-hover:animate-pulse" alt="StarkSeal Logo" />
               <span className="text-xl font-bold tracking-widest text-white group-hover:text-primary transition-colors">
                 STARK<span className="text-primary">SEAL</span>
               </span>

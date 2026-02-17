@@ -293,7 +293,7 @@ function RevealForm({ auctionId }: { auctionId: number }) {
       <button 
         onClick={handleReveal}
         disabled={isSubmitting}
-        className="w-full cyber-button border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black hover:shadow-[0_0_20px_rgba(234,179,8,0.6)]"
+        className="w-full cyber-button-accent border-accent text-accent hover:bg-accent hover:text-white hover:shadow-[0_0_20px_rgba(248,113,113,0.6)]"
       >
         {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "REVEAL MY BID"}
       </button>

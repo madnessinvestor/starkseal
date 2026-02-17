@@ -162,7 +162,7 @@ export default function CreateAuction() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full cyber-button flex items-center justify-center gap-2 group"
+                className="w-full cyber-button-accent flex items-center justify-center gap-2 group"
               >
                 {isSubmitting ? (
                   <>

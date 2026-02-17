@@ -5,30 +5,30 @@
 @tailwind utilities;
 
 :root {
-  /* Cyberpunk Palette - Neon Green & Dark Void */
-  --background: 240 10% 4%;       /* #0a0a0b - Deep dark */
-  --foreground: 142 70% 50%;      /* #26d962 - Terminal Green */
+  /* Starknet Purple & Coral Palette - Dark Mode */
+  --background: 245 40% 6%;        /* #080a10 - Deep dark navy/purple */
+  --foreground: 250 20% 98%;      /* #f8f9ff - Almost white */
   
-  --primary: 142 70% 50%;         /* Neon Green */
-  --primary-foreground: 240 10% 4%; /* Dark Text on Green */
+  --primary: 255 75% 65%;         /* Light Purple */
+  --primary-foreground: 245 40% 6%;
   
-  --secondary: 240 6% 10%;        /* Dark Grey */
-  --secondary-foreground: 142 70% 50%;
+  --secondary: 250 30% 12%;       /* Dark Purple/Navy */
+  --secondary-foreground: 255 75% 85%;
   
-  --muted: 240 6% 15%;
-  --muted-foreground: 145 20% 65%; /* Dimmed Green/Grey */
+  --muted: 250 20% 15%;
+  --muted-foreground: 250 15% 70%;
   
-  --accent: 270 50% 40%;          /* Purple accent for contrast */
-  --accent-foreground: 0 0% 100%;
+  --accent: 12 75% 65%;           /* Starknet Coral from logo */
+  --accent-foreground: 250 20% 98%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
-  --border: 142 30% 20%;          /* Dim Green Border */
-  --input: 240 6% 10%;
-  --ring: 142 70% 50%;
+  --border: 250 20% 20%;
+  --input: 250 20% 12%;
+  --ring: 255 75% 65%;
   
-  --radius: 0px;                  /* Sharp corners for cyberpunk feel */
+  --radius: 0.75rem;              /* Softer rounded corners */
 
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'Oxanium', cursive;
@@ -41,48 +41,43 @@
   body {
     @apply bg-background text-foreground font-mono antialiased selection:bg-primary selection:text-background;
     background-image: 
-      linear-gradient(rgba(38, 217, 98, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(38, 217, 98, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
+      radial-gradient(circle at 50% 50%, rgba(138, 92, 246, 0.05) 0%, transparent 50%),
+      linear-gradient(rgba(138, 92, 246, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(138, 92, 246, 0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    @apply uppercase tracking-wider text-primary drop-shadow-[0_0_10px_rgba(38,217,98,0.3)];
+    @apply tracking-tight text-primary drop-shadow-[0_0_15px_rgba(167,139,250,0.2)];
   }
 }
 
 @layer components {
   .cyber-card {
-    @apply bg-black/80 border border-primary/30 backdrop-blur-sm relative overflow-hidden;
-    box-shadow: 0 0 20px rgba(38, 217, 98, 0.05);
+    @apply bg-secondary/50 border border-primary/20 backdrop-blur-md rounded-xl relative overflow-hidden transition-all duration-300;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
   
-  .cyber-card::before {
-    content: '';
-    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-primary;
-  }
-  
-  .cyber-card::after {
-    content: '';
-    @apply absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-primary;
+  .cyber-card:hover {
+    @apply border-primary/40;
+    box-shadow: 0 8px 32px 0 rgba(138, 92, 246, 0.1);
   }
 
   .cyber-button {
-    @apply relative px-6 py-3 font-bold uppercase tracking-widest transition-all duration-200
-           bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-black hover:shadow-[0_0_20px_rgba(38,217,98,0.6)];
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    @apply relative px-6 py-2 font-semibold transition-all duration-300 rounded-lg
+           bg-primary/10 border border-primary/50 text-primary hover:bg-primary hover:text-background hover:shadow-[0_0_20px_rgba(167,139,250,0.4)]
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .cyber-button-accent {
+    @apply relative px-6 py-2 font-semibold transition-all duration-300 rounded-lg
+           bg-accent/10 border border-accent/50 text-accent hover:bg-accent hover:text-white hover:shadow-[0_0_20px_rgba(248,113,113,0.4)]
+           active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .cyber-input {
-    @apply bg-black/50 border border-primary/30 text-primary placeholder:text-primary/30 focus:border-primary focus:ring-1 focus:ring-primary focus:shadow-[0_0_10px_rgba(38,217,98,0.2)] transition-all;
-  }
-
-  .scanline {
-    @apply fixed inset-0 pointer-events-none z-50 opacity-[0.03];
-    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 51%);
-    background-size: 100% 4px;
-    animation: scanline 10s linear infinite;
+    @apply bg-background/50 border border-border text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 focus:shadow-[0_0_15px_rgba(167,139,250,0.1)] transition-all outline-none py-2 px-3;
   }
 }
 

@@ -10,14 +10,19 @@ export default function Home() {
 
   return (
     <Layout>
-      <header className="mb-12 border-b border-primary/20 pb-8">
-        <h1 className="text-4xl md:text-6xl font-black mb-4 glitch-text">
-          SECURE_AUCTIONS
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl">
-          Deploy sealed-bid auctions on Starknet. Prevent front-running with cryptographic commitments. 
-          Your bid remains a secret until the reveal phase.
-        </p>
+      <header className="mb-12 border-b border-primary/20 pb-8 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+        <div className="flex-shrink-0">
+          <img src="/static/starknet-logo.png" className="w-32 h-32 md:w-48 md:h-48 drop-shadow-[0_0_20px_rgba(138,92,246,0.3)]" alt="StarkSeal Large Logo" />
+        </div>
+        <div>
+          <h1 className="text-4xl md:text-6xl font-black mb-4 glitch-text">
+            SECURE_AUCTIONS
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-2xl">
+            Deploy sealed-bid auctions on Starknet. Prevent front-running with cryptographic commitments. 
+            Your bid remains a secret until the reveal phase.
+          </p>
+        </div>
       </header>
 
       <div className="mb-8 flex items-center justify-between">
