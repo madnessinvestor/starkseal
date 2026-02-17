@@ -1,14 +1,21 @@
-# StarkSeal - Privacy-Preserving Auction on Starknet
+# StarkSeal - Privacy-Preserving Voting on Starknet
 
 ## Overview
 
-StarkSeal is a privacy-preserving sealed-bid auction platform built on Starknet. It uses a cryptographic Commit-Reveal scheme to prevent front-running and copy-cat bidding in on-chain auctions. The application consists of a React frontend with a cyberpunk/hacker aesthetic, an Express backend API, a PostgreSQL database for auction metadata, and integration with Starknet smart contracts (Cairo) for on-chain auction logic.
+StarkSeal is a privacy-preserving voting platform built on Starknet. It uses a cryptographic Commit-Reveal scheme to ensure vote confidentiality. The application consists of a React frontend with a cyberpunk aesthetic, an Express backend API, a PostgreSQL database, and Cairo smart contracts.
 
-The core auction flow:
-1. Sellers create auctions with bidding and reveal deadlines
-2. Bidders commit hashed bids (`Poseidon(amount, salt)`) during the bidding phase
-3. Bidders reveal their actual bids during the reveal phase
-4. The highest verified bid wins
+The core voting flow:
+1. Users create polls with voting and reveal deadlines.
+2. Voters commit hashed votes (`Poseidon(choice, salt)`) during the voting phase.
+3. Voters reveal their actual choices during the reveal phase.
+4. The system tallies and displays the final results.
+
+## Recent Changes (2026-02-17)
+- Adapted the codebase from an auction platform to a private voting system.
+- Updated Cairo contract `voting.cairo` with commit-reveal logic.
+- Updated React frontend with `PollDetails` supporting commit and reveal phases.
+- Synchronized PostgreSQL schema with `option_1_votes` and `option_2_votes`.
+- Added automated result syncing from Starknet to the local database.
 
 ## User Preferences
 
