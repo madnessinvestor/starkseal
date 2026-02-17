@@ -1,0 +1,70 @@
+The current "Create Poll" page is still too technical and does not clearly explain to users what they are creating.
+
+Goal:
+Redesign the wording and flow of the page so that a non-technical user immediately understands:
+- What they are creating
+- What people will vote on
+- What happens when someone votes
+- When results will be shown
+
+This must feel like a normal voting form, not a blockchain configuration screen.
+
+Required changes:
+
+1) Page purpose (very important)
+- At the top of the page, clearly state in simple language:
+  “You are creating a private vote.”
+  “People will vote anonymously.”
+  “Only the final result will be shown.”
+
+2) Replace technical explanations
+- Remove or rewrite any mention of:
+  commit-reveal
+  cryptography
+  protocol
+- Use simple language instead:
+  “Votes are secret.”
+  “No one can see individual votes.”
+  “The system only shows the final result.”
+
+3) Clarify what each field means
+
+- POLL_TITLE:
+  Rename to: “Voting Question”
+  Helper text: “This is the question people will vote on.”
+
+- DESCRIPTION:
+  Helper text: “Optional context to help voters understand the question.”
+
+- CREATOR_ADDRESS:
+  Do NOT show this field to users.
+  This is an internal blockchain detail and should be hidden.
+
+- VOTING_DEADLINE:
+  Rename to: “Voting ends on”
+  Helper text: “People can vote until this date.”
+
+- REVEAL_DEADLINE:
+  Rename to: “Results available on”
+  Helper text: “The final result will be shown on this date.”
+
+4) Button clarity
+- Change the main button text to something explicit, for example:
+  “Create Private Vote”
+- Add a short note below the button:
+  “You can share this vote with others once it is created.”
+
+5) Overall tone
+- Use friendly, human language.
+- Avoid developer or blockchain terms.
+- Assume the user has never used a crypto app before.
+
+Constraints:
+- Do NOT change smart contracts.
+- Do NOT add new features.
+- Do NOT redesign the entire UI layout.
+- Only improve wording, labels, helper text, and clarity.
+
+End result:
+A normal user should understand in under 5 seconds that they are creating
+a private, anonymous vote and what will happen next.

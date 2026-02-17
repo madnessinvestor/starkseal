@@ -53,10 +53,10 @@ export default function CreatePoll() {
       const votingEnd = Math.floor(data.votingEndsAt.getTime() / 1000);
       const revealEnd = Math.floor(data.revealEndsAt.getTime() / 1000);
 
-      toast({ title: "Starknet Transaction", description: "Please confirm the transaction in your wallet." });
+      toast({ title: "Confirm Vote", description: "Please confirm the creation in your wallet." });
       
       const { transaction_hash } = await votingContract.create_poll(votingEnd, revealEnd);
-      toast({ title: "Transaction Sent", description: `Hash: ${transaction_hash.substring(0, 10)}...` });
+      toast({ title: "Vote Sent", description: "Your private vote is being created..." });
 
       await sn.provider.waitForTransaction(transaction_hash);
 
@@ -73,7 +73,7 @@ export default function CreatePoll() {
         transactionHash: transaction_hash
       });
 
-      toast({ title: "Success", description: "Poll created on Starknet." });
+      toast({ title: "Success", description: "Your private vote has been created." });
       setLocation("/");
       
     } catch (error: any) {
@@ -90,102 +90,102 @@ export default function CreatePoll() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-black mb-2 glitch-text">INIT_NEW_POLL</h1>
-          <p className="text-muted-foreground font-mono text-sm">
-            Deploy a new private voting poll to Starknet.
-          </p>
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-black mb-3 glitch-text uppercase tracking-tighter">Create a Private Vote</h1>
+          <div className="space-y-1 text-muted-foreground font-medium">
+            <p>People will vote anonymously.</p>
+            <p>Only the final result will be shown.</p>
+          </div>
         </header>
 
         <div className="cyber-card p-8">
-          <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-sm">
-            <div className="flex items-center gap-2 text-primary font-bold mb-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span>PRIVATE_VOTING_PROTOCOL</span>
+          <div className="mb-10 p-4 bg-primary/5 border border-primary/20 rounded-sm">
+            <div className="flex items-center gap-2 text-primary font-bold mb-2">
+              <ShieldCheck className="w-5 h-5" />
+              <span className="uppercase tracking-widest text-xs">Security Status: Active</span>
             </div>
-            <p className="text-xs text-muted-foreground font-mono">
-              This poll uses a commit-reveal scheme. Individual votes are cryptographically hidden until the reveal phase. Only the final tally is ever made public.
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Votes are secret. No one can see individual votes. The system only shows the final result once the voting period ends.
             </p>
           </div>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
             
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-primary uppercase tracking-wider">
-                POLL_TITLE
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-primary uppercase tracking-wider block">
+                Voting Question
               </label>
               <input
                 {...form.register("title")}
-                className="w-full cyber-input p-3 rounded-none outline-none font-mono"
-                placeholder="e.g. Governance Proposal #1"
+                className="w-full cyber-input p-4 rounded-none outline-none font-mono text-lg"
+                placeholder="e.g. Should we approve the new proposal?"
               />
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">This is the question people will vote on.</p>
               {form.formState.errors.title && (
-                <p className="text-destructive text-xs">{form.formState.errors.title.message}</p>
+                <p className="text-destructive text-xs mt-1">{form.formState.errors.title.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-primary uppercase tracking-wider">
-                DESCRIPTION
+            <div className="space-y-3">
+              <label className="text-sm font-bold text-primary uppercase tracking-wider block">
+                Description
               </label>
               <textarea
                 {...form.register("description")}
-                className="w-full cyber-input p-3 rounded-none outline-none font-mono h-32"
-                placeholder="Details about the proposal..."
+                className="w-full cyber-input p-4 rounded-none outline-none font-mono h-32 resize-none"
+                placeholder="Provide more details here..."
               />
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Optional context to help voters understand the question.</p>
               {form.formState.errors.description && (
-                <p className="text-destructive text-xs">{form.formState.errors.description.message}</p>
+                <p className="text-destructive text-xs mt-1">{form.formState.errors.description.message}</p>
               )}
             </div>
 
-            <div className="space-y-2 opacity-60">
-              <label className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
-                CREATOR_ADDRESS <Info className="w-3 h-3" />
-              </label>
-              <input
-                {...form.register("creatorAddress")}
-                readOnly
-                className="w-full cyber-input p-3 rounded-none outline-none font-mono bg-black/80 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-primary uppercase tracking-wider">
-                  VOTING_DEADLINE
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-primary uppercase tracking-wider block">
+                  Voting ends on
                 </label>
                 <DatePicker 
                   selected={form.watch("votingEndsAt")}
                   onSelect={(date) => form.setValue("votingEndsAt", date as Date)}
                 />
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">People can vote until this date.</p>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-primary uppercase tracking-wider">
-                  REVEAL_DEADLINE
+              <div className="space-y-3">
+                <label className="text-sm font-bold text-primary uppercase tracking-wider block">
+                  Results available on
                 </label>
                 <DatePicker 
                   selected={form.watch("revealEndsAt")}
                   onSelect={(date) => form.setValue("revealEndsAt", date as Date)}
                 />
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">The final result will be shown on this date.</p>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-primary/20">
+            <div className="pt-10 border-t border-primary/20">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full cyber-button flex items-center justify-center gap-2 group"
+                className="w-full cyber-button h-20 flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" /> DEPLOYING...
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <span className="text-sm font-bold tracking-widest">CREATING_VOTE...</span>
                   </>
                 ) : (
                   <>
-                    CREATE_POLL <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    <span className="text-xl font-black tracking-tighter">CREATE PRIVATE VOTE</span>
+                    <span className="text-[10px] font-mono opacity-50 uppercase tracking-[0.3em]">Confirm in Wallet</span>
                   </>
                 )}
               </button>
+              <p className="text-[10px] text-center text-muted-foreground mt-4 uppercase tracking-widest font-bold">
+                You can share this vote with others once it is created.
+              </p>
             </div>
           </form>
         </div>
