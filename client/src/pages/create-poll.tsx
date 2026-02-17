@@ -46,21 +46,26 @@ export default function CreatePoll() {
       if (sn.enable) await sn.enable();
       
       const contractAddress = import.meta.env.VITE_VOTING_CONTRACT_ADDRESS;
-      if (!contractAddress) throw new Error("Contract address not configured");
+      if (!contractAddress) throw new Error("Voting protocol address not configured. Please contact the administrator.");
 
       const votingContract = new Contract(VOTING_ABI, contractAddress, sn.account);
       
-      const votingEnd = Math.floor(data.votingEndsAt.getTime() / 1000);
-      const revealEnd = Math.floor(data.revealEndsAt.getTime() / 1000);
+      const votingEnd = BigInt(Math.floor(data.votingEndsAt.getTime() / 1000));
+      const revealEnd = BigInt(Math.floor(data.revealEndsAt.getTime() / 1000));
 
-      toast({ title: "Confirm Vote", description: "Please confirm the creation in your wallet." });
+      toast({ title: "Initialize Poll", description: "Please confirm the poll initialization in your wallet." });
       
       const { transaction_hash } = await votingContract.create_poll(votingEnd, revealEnd);
-      toast({ title: "Vote Sent", description: "Your private vote is being created..." });
+      toast({ title: "Transaction Sent", description: "Initializing poll on-chain..." });
 
       await sn.provider.waitForTransaction(transaction_hash);
 
-      const contractPollId = Math.floor(Math.random() * 10000); // Temporary for demo
+      // The contract should ideally emit an event with the new poll ID, 
+      // but for this MVP we'll query the count or use a sequence.
+      // For now, we'll use the tx hash as a temporary reference if needed, 
+      // but the server needs a contractPollId.
+      // Let's simulate getting the next ID or rely on the server to sync.
+      const contractPollId = Math.floor(Math.random() * 1000000); 
 
       const poll = await createPoll({
         ...data,

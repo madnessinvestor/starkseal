@@ -16,8 +16,9 @@ export default function Home() {
           SECURE_VOTING
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl">
-          Deploy private polls on Starknet. Ensure vote confidentiality with cryptographic commitments. 
-          Your vote remains a secret until the reveal phase.
+          Participate in secure, private polls managed by the StarkSeal protocol. 
+          Ensure vote confidentiality with cryptographic commitments. 
+          Your choice remains a secret until the reveal phase.
         </p>
       </header>
 
