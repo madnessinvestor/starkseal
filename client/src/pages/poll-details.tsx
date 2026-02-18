@@ -6,7 +6,8 @@ import { CountdownTimer } from "@/components/countdown-timer";
 import { hashVote, VOTING_ABI } from "@/lib/starknet";
 import { saveVoteLocally, getVoteForPoll, updateVoteStatus } from "@/lib/starknet-mock";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Eye, EyeOff, Hash, Lock, CheckCircle2, Vote } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, Hash, Lock, CheckCircle2, Vote, Info } from "lucide-react";
+import { useWallet } from "@/hooks/use-wallet";
 import { connect } from "get-starknet";
 import { Contract } from "starknet";
 import { format } from "date-fns";
@@ -15,6 +16,7 @@ export default function PollDetails() {
   const [, params] = useRoute("/poll/:id");
   const pollId = Number(params?.id);
   const { data: poll, isLoading, error } = usePoll(pollId);
+  const { address, connectWallet } = useWallet();
   const localVote = getVoteForPoll(pollId);
 
   if (isLoading) return <LoadingScreen />;
@@ -198,6 +200,7 @@ function CommitForm({ pollId }: { pollId: number }) {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { address, connectWallet } = useWallet();
   const { data: poll } = usePoll(pollId);
 
   const handleGenerate = async () => {
@@ -215,11 +218,15 @@ function CommitForm({ pollId }: { pollId: number }) {
     setIsSubmitting(true);
     
     try {
-      const starknet = await connect();
-      if (!starknet) throw new Error("Connect wallet");
-      const sn = starknet as any;
-      if (sn.enable) await sn.enable();
+      if (!address) {
+        await connectWallet();
+        return; // Wait for user to click again after connecting
+      }
+
+      const starknet = await connect({ modalMode: "neverAsk" });
+      if (!starknet || !(starknet as any).isConnected) throw new Error("Wallet not connected");
       
+      const sn = starknet as any;
       const contractAddress = import.meta.env.VITE_VOTING_CONTRACT_ADDRESS;
       const contract = new Contract(VOTING_ABI, contractAddress, sn.account);
       
@@ -320,6 +327,7 @@ function CommitForm({ pollId }: { pollId: number }) {
 function RevealForm({ pollId }: { pollId: number }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { address, connectWallet } = useWallet();
   const vote = getVoteForPoll(pollId);
   const { data: poll } = usePoll(pollId);
 
@@ -328,11 +336,15 @@ function RevealForm({ pollId }: { pollId: number }) {
     setIsSubmitting(true);
     
     try {
-      const starknet = await connect();
-      if (!starknet) throw new Error("Connect wallet");
-      const sn = starknet as any;
-      if (sn.enable) await sn.enable();
+      if (!address) {
+        await connectWallet();
+        return;
+      }
+
+      const starknet = await connect({ modalMode: "neverAsk" });
+      if (!starknet || !(starknet as any).isConnected) throw new Error("Wallet not connected");
       
+      const sn = starknet as any;
       const contractAddress = import.meta.env.VITE_VOTING_CONTRACT_ADDRESS;
       const contract = new Contract(VOTING_ABI, contractAddress, sn.account);
       

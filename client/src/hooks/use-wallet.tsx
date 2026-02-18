@@ -22,15 +22,24 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         modalMode: silent ? "neverAsk" : "canAsk",
       });
 
-      if (starknet && (starknet as any).isConnected) {
-        setAddress((starknet as any).selectedAddress || null);
-        setStatus("connected");
-      } else {
-        setStatus("disconnected");
+      if (starknet) {
+        const sn = starknet as any;
+        // For get-starknet v4, we might need to call enable
+        if (!sn.isConnected && sn.enable) {
+          await sn.enable();
+        }
+        
+        if (sn.isConnected) {
+          setAddress(sn.selectedAddress || null);
+          setStatus("connected");
+          return;
+        }
       }
+      
+      if (!silent) setStatus("disconnected");
     } catch (err) {
       console.error("Wallet connection failed", err);
-      setStatus("disconnected");
+      if (!silent) setStatus("disconnected");
     }
   };
 

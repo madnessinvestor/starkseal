@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Link, useLocation } from "wouter";
 import { Terminal, Shield, Gavel, Cpu, Wallet } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
