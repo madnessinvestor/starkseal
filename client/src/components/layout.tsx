@@ -1,32 +1,11 @@
 import { Link, useLocation } from "wouter";
 import { Terminal, Shield, Gavel, Cpu, Wallet } from "lucide-react";
-import { useState, useEffect } from "react";
-import { connect, disconnect } from "get-starknet";
+import { useWallet } from "@/hooks/use-wallet";
 import { Button } from "@/components/ui/button";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const [address, setAddress] = useState<string | null>(null);
-
-  const handleConnect = async () => {
-    try {
-      const starknet = await connect();
-      if (starknet) {
-        const sn = starknet as any;
-        if (sn.enable) {
-          await sn.enable();
-        }
-        setAddress(sn.selectedAddress || null);
-      }
-    } catch (err) {
-      console.error("Wallet connection failed", err);
-    }
-  };
-
-  const handleDisconnect = async () => {
-    await disconnect();
-    setAddress(null);
-  };
+  const { address, connectWallet, disconnectWallet, status } = useWallet();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-mono relative overflow-hidden">
@@ -61,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={handleDisconnect}
+                onClick={disconnectWallet}
                 className="border-primary/50 text-primary hover:bg-primary/10 text-xs"
               >
                 {address.slice(0, 6)}...{address.slice(-4)}
@@ -70,11 +49,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Button 
                 variant="default" 
                 size="sm" 
-                onClick={handleConnect}
+                onClick={connectWallet}
+                disabled={status === "connecting"}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs"
               >
                 <Wallet className="w-4 h-4 mr-2" />
-                CONNECT_WALLET
+                {status === "connecting" ? "CONNECTING..." : "CONNECT_WALLET"}
               </Button>
             )}
             
